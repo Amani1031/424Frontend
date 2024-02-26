@@ -14,55 +14,42 @@ export const AuthContext = React.createContext(null);
 
 const App = () => {
   const [token, setToken] = React.useState(null);
-
-  const handleLogin = async () => {
-    const token = await fakeAuth();
-    setToken(token);
-  };
-
-  const handleLogout = () => {
-    setToken(null);
-  };
-
+  
   return (
     <>
-      <Navigation token={token} onLogout={handleLogout} />
-      {token ? (
-        <button onClick={handleLogout}>Sign Out</button>
-      ) : (
-        <button onClick={handleLogin}>Sign In</button>
-      )}
-
-      <AuthContext.Provider value={token}>
+    <AuthProvider>
+        <Navigation />
+      
         <h1>React Router</h1>
-          <Routes>
-            <Route index element={<Landing />} />
-            <Route
-              path="home"
-              element={
-                <ProtectedRoute user={token}>
-                  <Home />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="landing" element={<Landing />} />
-            <Route path="*" element={<p>There's nothing here: 404!</p>} />
-          </Routes>
-        </AuthContext.Provider>
+
+        <Routes>
+          <Route index element={<Home />} />
+          <Route path="landing" element={
+              <ProtectedRoute>
+                <Landing />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="home" element={<Home />} />
+          <Route path="*" element={<p>There's nothing here: 404!</p>} />
+        </Routes>
+      </AuthProvider>
     </>
   );
 };
 
-const Navigation = ({ token, onLogout }) => (
-  <nav>
-    <NavLink to="/landing">Landing</NavLink>
+const Navigation = () => {
+  const { value } = useAuth();
+  return (
+    <nav>
     <NavLink to="/home">Home</NavLink>
-    {token && (
-      <button type="button" onClick={onLogout}>
+    <NavLink to="/landing">Landing</NavLink>
+    {value.token && (
+      <button type="button" onClick={value.onLogout}>
         Sign Out
       </button>
     )}
   </nav>
-);
+)};
 
 export default App;
